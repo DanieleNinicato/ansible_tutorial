@@ -39,6 +39,11 @@
       state: latest
     when: ansible_distribution == "Fedora"
 
+  - name: start apache (Ubuntu)
+    tags: apache,ubuntu
+    command: service apache2 start
+    when: ansible_distribution == "Ubuntu"    
+
   - name: copy default html file for apache
     tags: apache
     copy:
@@ -58,6 +63,11 @@
       name: mariadb-server
       state: latest
     when: ansible_distribution == "Ubuntu"
+
+  - name: start mariadb (Ubuntu)
+    tags: db,ubuntu
+    shell: nohup mariadbd --user=root --skip-networking=0 --socket=/run/mysqld/mysqld.sock > /dev/null 2>&1 &  
+    when: ansible_distribution == "Ubuntu"    
 
   - name: install mariadb (Fedora)
     tags: db,fedora
