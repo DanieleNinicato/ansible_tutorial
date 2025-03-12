@@ -18,6 +18,16 @@
     when: ansible_distribution == "Fedora"
 
 
+- hosts: all
+  tasks:
+
+  - name: create user 'simone'
+    tags: always
+    user:
+      name: simone
+      groups: root  
+      
+
 - hosts: web_servers
   tasks:  
 
