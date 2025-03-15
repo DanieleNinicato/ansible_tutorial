@@ -17,73 +17,14 @@
       update_cache: yes
     when: ansible_distribution == "Fedora"
 
-
 - hosts: all
-  tasks:
-
-  - name: create user 'simone'
-    tags: always
-    user:
-      name: simone
-      groups: root  
-      
+  roles: 
+    - base
 
 - hosts: web_servers
-  tasks:  
-
-  - name: install apache (Ubuntu)
-    tags: apache,ubuntu
-    apt:
-      name: 
-        - apache2
-        - libapache2-mod-php
-      state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install apache (Fedora)
-    tags: apache,fedora
-    dnf:
-      name:
-        - httpd
-        - php
-      state: latest
-    when: ansible_distribution == "Fedora"
-
-  - name: start apache (Ubuntu)
-    tags: apache,ubuntu
-    command: service apache2 start
-    when: ansible_distribution == "Ubuntu"    
-
-  - name: copy default html file for apache
-    tags: apache
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644    
-
+  roles:
+    - web_servers
 
 - hosts: db_servers
-  tasks:
-
-  - name: install mariadb (Ubuntu)
-    tags: db,ubuntu
-    apt:
-      name: mariadb-server
-      state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: start mariadb (Ubuntu)
-    tags: db,ubuntu
-    shell: nohup mariadbd --user=root --skip-networking=0 --socket=/run/mysqld/mysqld.sock > /dev/null 2>&1 &  
-    when: ansible_distribution == "Ubuntu"    
-
-  - name: install mariadb (Fedora)
-    tags: db,fedora
-    dnf:
-      name: mariadb
-      state: latest
-    when: ansible_distribution == "Fedora"    
-
-
+  roles:
+    - db_servers  
