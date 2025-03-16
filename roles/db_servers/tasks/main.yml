@@ -1,32 +1,16 @@
-- name: cleanup (Ubuntu)
-  apt:
-    name: 
-      - mariadb-server  
+- name: cleanup
+  tags: db
+  package:
+    name: "{{ mariadb_package_name }}"  
     state: absent
-  when: ansible_distribution == "Ubuntu"
 
-- name: cleanup (Fedora)
-  dnf:
-    name:
-      - mariadb  
-    state: absent
-  when: ansible_distribution == "Fedora"  
-
-- name: install mariadb (Ubuntu)
-  tags: db,ubuntu
-  apt:
-    name: mariadb-server
+- name: install mariadb
+  tags: db
+  package:
+    name: "{{ mariadb_package_name }}"
     state: latest
-  when: ansible_distribution == "Ubuntu"
 
 - name: start mariadb (Ubuntu)
   tags: db,ubuntu
   shell: nohup mariadbd --user=root --skip-networking=0 --socket=/run/mysqld/mysqld.sock > /dev/null 2>&1 &  
   when: ansible_distribution == "Ubuntu"    
-
-- name: install mariadb (Fedora)
-  tags: db,fedora
-  dnf:
-    name: mariadb
-    state: latest
-  when: ansible_distribution == "Fedora"

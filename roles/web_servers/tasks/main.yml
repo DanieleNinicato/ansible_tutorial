@@ -1,36 +1,18 @@
-- name: cleanup (Ubuntu)
-  apt:
+- name: cleanup
+  tags: apache
+  package:
     name: 
-      - apache2
-      - libapache2-mod-php
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
     state: absent
-  when: ansible_distribution == "Ubuntu"
 
-- name: cleanup (Fedora)
-  dnf:
-    name:
-      - httpd
-      - php
-    state: absent
-  when: ansible_distribution == "Fedora"  
-
-- name: install apache (Ubuntu)
-  tags: apache,ubuntu
-  apt:
+- name: install apache
+  tags: apache
+  package:
     name: 
-      - apache2
-      - libapache2-mod-php
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
     state: latest
-  when: ansible_distribution == "Ubuntu"
-
-- name: install apache (Fedora)
-  tags: apache,fedora
-  dnf:
-    name:
-      - httpd
-      - php
-    state: latest
-  when: ansible_distribution == "Fedora"
 
 - name: copy default html file for apache
   tags: apache
