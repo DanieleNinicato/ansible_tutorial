@@ -24,6 +24,7 @@
 - hosts: web_servers
   roles:
     - web_servers
+    - java  
 
 - hosts: db_servers
   roles:

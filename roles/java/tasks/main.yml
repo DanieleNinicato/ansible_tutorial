@@ -1,0 +1,42 @@
+- name: check installed Java version
+  tags: java
+  shell: java -version
+  register: current_java_version
+  ignore_errors: yes # avoid failure if Java is not installed  
+  
+- name: display current Java version
+  debug:
+    msg: "{{ current_java_version.stderr_lines | default([]) }}"
+
+- name: set Java package name dynamically (Ubuntu)
+  set_fact:
+    old_java_package: "openjdk-17-jdk"
+  when: ansible_distribution == "Ubuntu"
+
+- name: set Java package name dynamically (Fedora)
+  set_fact:
+    old_java_package: "java-17-openjdk"
+  when: ansible_distribution == "Fedora"    
+
+- name: uninstall current Java version (if found)
+  tags: java
+  package:
+    name: "{{ old_java_package }}" 
+    state: absent
+  when: "'17' in (current_java_version.stderr | default(''))"    
+
+- name: install the desired Java version
+  tags: java
+  package: 
+    name: "{{ java_package_name }}"
+    state: present
+
+- name: verify newly installed Java version
+  tags: java
+  shell: java -version
+  register: new_java_version
+  ignore_errors: yes
+
+- name: display Java version
+  debug:
+    msg: "{{ new_java_version.stderr_lines }}"  
