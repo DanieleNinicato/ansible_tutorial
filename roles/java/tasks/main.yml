@@ -5,25 +5,32 @@
   ignore_errors: yes # avoid failure if Java is not installed  
   
 - name: display current Java version
+  tags: java
   debug:
     msg: "{{ current_java_version.stderr_lines | default([]) }}"
 
-- name: set Java package name dynamically (Ubuntu)
-  set_fact:
-    old_java_package: "openjdk-17-jdk"
-  when: ansible_distribution == "Ubuntu"
+- name: Find installed Java package (Ubuntu)
+  tags: java
+  shell: dpkg --list | grep openjdk | awk '{print $2}' | sed 's/:amd64$//'
+  register: installed_java_package_ubuntu
+  changed_when: false
+  when: ansible_distribution == "Ubuntu"    
 
-- name: set Java package name dynamically (Fedora)
-  set_fact:
-    old_java_package: "java-17-openjdk"
-  when: ansible_distribution == "Fedora"    
+- name: Find installed Java package (Fedora)
+  tags: java
+  shell: rpm -qa | grep openjdk
+  register: installed_java_package_fedora
+  changed_when: false
+  when: ansible_distribution == "Fedora"
 
-- name: uninstall current Java version (if found)
+- name: Uninstall current Java version (if found)
   tags: java
   package:
-    name: "{{ old_java_package }}" 
+    name: "{{ (installed_java_package_ubuntu.stdout_lines | default([])) + (installed_java_package_fedora.stdout_lines | default([])) }}"
     state: absent
-  when: "'17' in (current_java_version.stderr | default(''))"    
+  when: >
+    (installed_java_package_ubuntu.stdout_lines is defined and installed_java_package_ubuntu.stdout_lines | length > 0) or
+    (installed_java_package_fedora.stdout_lines is defined and installed_java_package_fedora.stdout_lines | length > 0)
 
 - name: install the desired Java version
   tags: java
